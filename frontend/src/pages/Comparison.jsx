@@ -262,7 +262,7 @@ export default function Comparison() {
                     className="strategy-header"
                     style={{ borderColor: "#00d4ff" }}
                   >
-                    <span className="strategy-icon">🐝</span>
+                    <span className="strategy-icon">🕊️</span>
                     <h3>PSO Optimized</h3>
                   </div>
                   <p className="strategy-desc">

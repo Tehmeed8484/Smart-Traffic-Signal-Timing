@@ -53,12 +53,12 @@ const ALGO_META = {
   },
   pso: {
     label: "PSO",
-    emoji: "🐝",
+    emoji: "🕊️",
     color: "#00d4ff",
     name: "Particle Swarm Optimization",
     iterLabel: "Iter",
     loadingText: "Running Particle Swarm Optimization...",
-    btnText: "🐝 Run PSO Optimization",
+    btnText: "🕊️ Run PSO Optimization",
     busyText: "⏳ Swarming...",
     description:
       "Configure and run Particle Swarm Optimization to search for high-quality traffic signal timing plans.",

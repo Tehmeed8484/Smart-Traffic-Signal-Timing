@@ -31,7 +31,7 @@ const ALGO_PRESETS = {
     },
   },
   PSO: {
-    emoji: "🐝",
+    emoji: "🕊️",
     color: "#00d4ff",
     iterLabel: "Iter",
     sectionTitle: "Swarm Convergence",
@@ -39,7 +39,7 @@ const ALGO_PRESETS = {
     metaIcon: "🔁",
     metaKey: "pso_iterations",
     metaKey2: "swarm_size",
-    metaIcon2: "🐝",
+    metaIcon2: "🕊️",
     metaLabel2: "Swarm Size",
     config: {
       grid_size: 4,

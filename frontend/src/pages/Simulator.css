@@ -6,7 +6,7 @@
 }
 
 .sim-controls {
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   height: fit-content;
   position: sticky;
   top: 90px;

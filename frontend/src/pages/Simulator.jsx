@@ -182,7 +182,7 @@ export default function Simulator() {
                   fontSize: "1.05rem",
                 }}
               >
-                PSO 🐝
+                PSO 🕊️
               </button>
               <button
                 onClick={() => handleTabChange("sa")}
