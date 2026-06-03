@@ -128,6 +128,15 @@ async def run_optimization(config: GAConfig):
 @router.post("/compare")
 async def run_comparison(config: ComparisonConfig):
     try:
+        # 🚨 FIX: Prevent Browser Timeouts by capping max iterations during "Compare All"
+        # This reduces the total simulations from ~3000 to ~250 for quick frontend response.
+        safe_ga_pop = min(config.ga_population_size, 10)
+        safe_ga_gen = min(config.ga_generations, 10)
+        safe_pso_swarm = min(config.pso_swarm_size, 10)
+        safe_pso_iter = min(config.pso_iterations, 10)
+        # SA checks 1 neighbor per iter, so 100 is fast
+        safe_sa_iter = min(config.sa_iterations, 100)
+
         # 1. Fixed timing baseline
         fixed_results = run_fixed_timing(
             grid_size=config.grid_size,
@@ -139,8 +148,8 @@ async def run_comparison(config: ComparisonConfig):
         # 2. GA Optimized timing
         ga_opt = GAOptimizer(
             grid_size=config.grid_size,
-            population_size=config.ga_population_size,
-            generations=config.ga_generations,
+            population_size=safe_ga_pop,
+            generations=safe_ga_gen,
             crossover_rate=config.ga_crossover_rate,
             mutation_rate=config.ga_mutation_rate,
             sim_steps=config.sim_steps,
@@ -153,8 +162,8 @@ async def run_comparison(config: ComparisonConfig):
         # 3. PSO Optimized timing
         pso_opt = PSOOptimizer(
             grid_size=config.grid_size,
-            swarm_size=config.pso_swarm_size,
-            iterations=config.pso_iterations,
+            swarm_size=safe_pso_swarm,
+            iterations=safe_pso_iter,
             sim_steps=config.sim_steps,
             spawn_rate=config.spawn_rate
         )
@@ -166,7 +175,7 @@ async def run_comparison(config: ComparisonConfig):
         sa_opt = SAOptimizer(
             grid_size=config.grid_size,
             initial_temp=config.sa_initial_temp,
-            iterations=config.sa_iterations,
+            iterations=safe_sa_iter,
             sim_steps=config.sim_steps,
             spawn_rate=config.spawn_rate
         )
@@ -187,7 +196,6 @@ async def run_comparison(config: ComparisonConfig):
             "sa_history": sa_results["history"],
         }
     except Exception as e:
-        # This will print the exact line and error to your terminal!
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 

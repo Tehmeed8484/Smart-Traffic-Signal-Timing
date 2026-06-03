@@ -2,8 +2,7 @@ import time
 import random
 from typing import List, Dict, Optional
 from backend.simulation.simulator import TrafficSimulator
-# We can reuse Chromosome class to hold timings
-from backend.ga.chromosome import Chromosome
+from backend.ga.chromosome import Chromosome, create_random_population
 
 
 class PSOOptimizer:
@@ -22,26 +21,25 @@ class PSOOptimizer:
 
     def run(self):
         start_time = time.time()
-        # Initialize swarm (using Chromosome to hold random timing positions)
-        from backend.ga.chromosome import create_random_population
+
+        # Initialize swarm
         swarm = create_random_population(self.swarm_size, self.grid_size)
+        velocities = [[0.0] * len(p.genes) for p in swarm]
 
-        # Initialize velocities (zero or random) and personal bests
-        velocities = [[0] * len(p.genes) for p in swarm]
-        personal_bests = [p.copy() for p in swarm]
-
-        # Evaluate initial fitness
+        # 🚨 FIX: Evaluate initial fitness FIRST before creating personal best copies
         for p in swarm:
             sim = TrafficSimulator(
                 self.grid_size, p.get_timing_plan(), self.sim_steps, self.spawn_rate)
             results = sim.run()
-            # Fitness: High throughput is good, high waiting time/gridlock is bad
             p.fitness = results["throughput"] - (
                 results["avg_waiting_time"] * 0.5) - (results["gridlock_penalty"] * 10)
             p.metrics = results
 
             if self.global_best is None or p.fitness > self.global_best.fitness:
                 self.global_best = p.copy()
+
+        # NOW we can safely save their personal bests
+        personal_bests = [p.copy() for p in swarm]
 
         for it in range(self.iterations):
             it_start = time.time()
