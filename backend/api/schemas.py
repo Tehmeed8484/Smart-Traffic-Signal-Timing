@@ -8,37 +8,68 @@ from typing import List, Dict, Optional, Any
 
 class SimulationConfig(BaseModel):
     """Configuration for running a traffic simulation."""
-    grid_size: int = Field(default=4, ge=2, le=8, description="Grid size N for N×N grid")
-    sim_steps: int = Field(default=500, ge=100, le=2000, description="Simulation time steps")
-    spawn_rate: float = Field(default=0.3, ge=0.05, le=0.8, description="Vehicle spawn rate")
-    green_duration: float = Field(default=30.0, ge=10, le=60, description="Fixed green duration")
-    with_snapshots: bool = Field(default=False, description="Include state snapshots")
-    snapshot_interval: int = Field(default=10, ge=1, le=50, description="Snapshot interval")
+    grid_size: int = Field(default=4, ge=2, le=8,
+                           description="Grid size N for N×N grid")
+    sim_steps: int = Field(default=500, ge=100, le=2000,
+                           description="Simulation time steps")
+    spawn_rate: float = Field(default=0.3, ge=0.05,
+                              le=0.8, description="Vehicle spawn rate")
+    green_duration: float = Field(
+        default=30.0, ge=10, le=60, description="Fixed green duration")
+    with_snapshots: bool = Field(
+        default=False, description="Include state snapshots")
+    snapshot_interval: int = Field(
+        default=10, ge=1, le=50, description="Snapshot interval")
 
 
-class GAConfig(BaseModel):
-    """Configuration for the Genetic Algorithm optimizer."""
-    grid_size: int = Field(default=4, ge=2, le=8, description="Grid size N for N×N grid")
-    population_size: int = Field(default=30, ge=10, le=100, description="Population size")
-    generations: int = Field(default=50, ge=5, le=200, description="Number of generations")
-    crossover_rate: float = Field(default=0.8, ge=0.1, le=1.0, description="Crossover rate")
-    mutation_rate: float = Field(default=0.1, ge=0.01, le=0.5, description="Mutation rate")
-    elite_count: int = Field(default=2, ge=1, le=10, description="Number of elites")
-    tournament_size: int = Field(default=3, ge=2, le=10, description="Tournament size")
-    sim_steps: int = Field(default=500, ge=100, le=2000, description="Simulation steps")
-    spawn_rate: float = Field(default=0.3, ge=0.05, le=0.8, description="Vehicle spawn rate")
+class OptimizeConfig(BaseModel):
+    """Configuration for the Optimization algorithms."""
+    algorithm: str = Field(
+        default="GA", description="Algorithm to run: GA, PSO, or SA")
+    grid_size: int = Field(default=4, ge=2, le=8)
+    sim_steps: int = Field(default=500, ge=100, le=2000)
+    spawn_rate: float = Field(default=0.3, ge=0.05, le=0.8)
+
+    # GA Specific
+    population_size: int = 30
+    generations: int = 50
+    crossover_rate: float = 0.8
+    mutation_rate: float = 0.1
+    elite_count: int = 2
+    tournament_size: int = 3
+
+    # PSO Specific
+    swarm_size: int = 30
+    pso_iterations: int = 50
+
+    # SA Specific
+    sa_initial_temp: float = 100.0
+    sa_iterations: int = 50
+
+    # 🚨 Simulator Visualization
+    with_snapshots: bool = False
+    snapshot_interval: int = 5
 
 
 class ComparisonConfig(BaseModel):
-    """Configuration for baseline comparison."""
-    grid_size: int = Field(default=4, ge=2, le=8, description="Grid size")
-    sim_steps: int = Field(default=500, ge=100, le=2000, description="Simulation steps")
-    spawn_rate: float = Field(default=0.3, ge=0.05, le=0.8, description="Spawn rate")
-    fixed_green_duration: float = Field(default=30.0, ge=10, le=60, description="Fixed green duration")
-    ga_population_size: int = Field(default=30, ge=10, le=100, description="GA population size")
-    ga_generations: int = Field(default=50, ge=5, le=200, description="GA generations")
-    ga_crossover_rate: float = Field(default=0.8, ge=0.1, le=1.0)
-    ga_mutation_rate: float = Field(default=0.1, ge=0.01, le=0.5)
+    grid_size: int = 4
+    sim_steps: int = 500
+    spawn_rate: float = 0.3
+    fixed_green_duration: int = 30
+
+    # GA Parameters
+    ga_population_size: int = 30
+    ga_generations: int = 50
+    ga_crossover_rate: float = 0.8
+    ga_mutation_rate: float = 0.1
+
+    # PSO Parameters
+    pso_swarm_size: int = 30
+    pso_iterations: int = 50
+
+    # SA Parameters
+    sa_initial_temp: float = 100.0
+    sa_iterations: int = 50
 
 
 class SimulationResult(BaseModel):
@@ -59,7 +90,7 @@ class SimulationResult(BaseModel):
 
 
 class GenerationResult(BaseModel):
-    """Result from one GA generation."""
+    """Result from one GA generation (when GA is selected)."""
     generation: int
     best_fitness: float
     avg_fitness: float
@@ -71,7 +102,7 @@ class GenerationResult(BaseModel):
 
 
 class GAResult(BaseModel):
-    """Complete GA optimization result."""
+    """GA optimization result (when GA is selected)."""
     best_chromosome: Dict[str, Any]
     history: List[Dict[str, Any]]
     total_time: float
@@ -79,15 +110,19 @@ class GAResult(BaseModel):
 
 
 class ComparisonResult(BaseModel):
-    """Result from baseline comparison."""
+    """Result from baseline and optimizer comparison."""
     fixed: Dict[str, Any]
-    random: Dict[str, Any]
     ga_optimized: Dict[str, Any]
+    pso_optimized: Dict[str, Any]
+    sa_optimized: Dict[str, Any]
     verdict: str
     ga_history: List[Dict[str, Any]]
+    pso_history: List[Dict[str, Any]]
+    sa_history: List[Dict[str, Any]]
 
 
 class ExportRequest(BaseModel):
     """Request to export results."""
     data: Dict[str, Any]
-    format: str = Field(default="json", description="Export format: json or csv")
+    format: str = Field(
+        default="json", description="Export format: json or csv")
